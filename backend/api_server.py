@@ -118,7 +118,7 @@ def deliver_morning_briefing_to_db():
 async def lifespan(app: FastAPI):
     scheduler = BackgroundScheduler(timezone="Asia/Seoul")
     # 🌟 일단 테스트할 때는 'cron' 대신 아래 줄을 써서 1분마다 작동하는지 확인해보세요!
-    scheduler.add_job(deliver_morning_briefing_to_db, 'interval', minutes=1)
+    #scheduler.add_job(deliver_morning_briefing_to_db, 'interval', minutes=1)
     
     # 실전용 (매일 아침 9시)
     scheduler.add_job(deliver_morning_briefing_to_db, 'cron', hour=9, minute=0)
