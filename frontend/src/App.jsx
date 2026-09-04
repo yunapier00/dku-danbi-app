@@ -48,7 +48,7 @@ function App() {
     const fetchHistory = async (validToken) => {
       try {
         const cleanToken = validToken.trim().replace(/[^\x00-\x7F]/g, "");
-        const response = await fetch("http://localhost:8000/api/web/history", {
+        const response = await fetch(https://dku-danbi-app-production.up.railway.app/api/web/history", {
           method: "GET",
           headers: { 
             "Authorization": `Bearer ${cleanToken}` 
@@ -89,7 +89,7 @@ function App() {
 
     try {
       const cleanToken = token.trim().replace(/[^\x00-\x7F]/g, "");
-      const response = await fetch("http://localhost:8000/api/web/chat", {
+      const response = await fetch("https://dku-danbi-app-production.up.railway.app/api/web/chat", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -159,7 +159,7 @@ function App() {
           )}
           
           <button 
-            onClick={() => window.location.href = "http://localhost:8000/api/auth/login"}
+            onClick={() => window.location.href = "https://dku-danbi-app-production.up.railway.app/api/auth/login"}
             style={{ 
               display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', 
               padding: '14px 20px', backgroundColor: 'white', border: '1px solid #dadce0', 
