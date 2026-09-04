@@ -48,7 +48,7 @@ function App() {
     const fetchHistory = async (validToken) => {
       try {
         const cleanToken = validToken.trim().replace(/[^\x00-\x7F]/g, "");
-        const response = await fetch(https://dku-danbi-app-production.up.railway.app/api/web/history", {
+        const response = await fetch("https://dku-danbi-app-production.up.railway.app/api/web/history", {
           method: "GET",
           headers: { 
             "Authorization": `Bearer ${cleanToken}` 
