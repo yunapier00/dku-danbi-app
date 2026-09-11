@@ -131,7 +131,7 @@ app = FastAPI(title="단국대 AI 서버", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 테스트 단계에서만 전체 허용
+    allow_origins=["https://keen-passion-production-9012.up.railway.app"],  # 테스트 단계에서만 전체 허용
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
