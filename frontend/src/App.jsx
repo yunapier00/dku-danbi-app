@@ -11,7 +11,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("danbi_token"));
   const [loginError, setLoginError] = useState("");
   
-  // 🌟 앱이 켜질 때 화면이 쪼그라들지 않도록 초기값을 기본 인사말로 세팅합니다.
+  // 
   const [messages, setMessages] = useState([{
       message: "안녕하세요! 단국대학교 죽전캠퍼스 AI 어시스턴트 단비입니다. 무엇을 도와드릴까요?",
       sender: "Danbi",
@@ -38,7 +38,7 @@ function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // 🌟 어떤 상황에서도 항상 제일 위에 고정할 기본 인사말
+   
     const defaultGreeting = {
       message: "안녕하세요! 단국대학교 죽전캠퍼스 AI 어시스턴트 단비입니다. 무엇을 도와드릴까요?",
       sender: "Danbi",
@@ -57,7 +57,7 @@ function App() {
 
         if (response.ok) {
           const data = await response.json();
-          // 🌟 핵심 로직: DB 기록이 있으면 [기본인사말 + DB기록] 으로 합쳐서 띄움!
+          //  DB 기록이 있으면 [기본인사말 + DB기록] 으로 합쳐서 띄움
           if (data.history && data.history.length > 0) {
             setMessages([defaultGreeting, ...data.history]);
           } else {
