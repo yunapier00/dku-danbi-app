@@ -43,7 +43,7 @@ from contextlib import asynccontextmanager
 logger.add("logs/danbi_chat_{time:YYYY-MM-DD}.log", rotation="00:00", retention="7 days", level="INFO")
 
 load_dotenv()
-DB_PATH = "./chroma_db_dd2"
+DB_PATH = "./chroma_db_dd3"
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
