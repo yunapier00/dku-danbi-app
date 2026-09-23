@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -19,9 +20,16 @@ def get_dankook_menu():
             service = Service(ChromeDriverManager().install())
         else:
             # 2. 리눅스 환경 (Railway 배포)
-            # webdriver_manager를 쓰지 않고, nixpacks가 설치한 시스템 경로를 직접 참조합니다.
-            chrome_options.binary_location = "/usr/bin/chromium"
-            service = Service("/usr/bin/chromedriver")
+            chromium_path = shutil.which("chromium")
+            chromedriver_path = shutil.which("chromedriver")
+            
+            if chromium_path:
+                chrome_options.binary_location = chromium_path
+            
+            if chromedriver_path:
+                service = Service(chromedriver_path)
+            else:
+                service = Service() # 탐색 실패 시 Selenium 기본 탐색기에 의존
 
         driver = webdriver.Chrome(service=service, options=chrome_options)
         url = "https://cms.dankook.ac.kr/web/kor/1947_commons"
