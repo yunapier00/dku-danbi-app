@@ -1,6 +1,5 @@
 import os
 import time
-import shutil
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -12,24 +11,17 @@ def get_dankook_menu():
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+        chrome_options.add_argument("--disable-gpu") 
+        chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
         if os.name == 'nt':
-            # 1. 윈도우 환경 (로컬 테스트)
+            # 윈도우 환경 (로컬 테스트)
             from webdriver_manager.chrome import ChromeDriverManager
             service = Service(ChromeDriverManager().install())
         else:
-            # 2. 리눅스 환경 (Railway 배포)
-            chromium_path = shutil.which("chromium")
-            chromedriver_path = shutil.which("chromedriver")
-            
-            if chromium_path:
-                chrome_options.binary_location = chromium_path
-            
-            if chromedriver_path:
-                service = Service(chromedriver_path)
-            else:
-                service = Service() # 탐색 실패 시 Selenium 기본 탐색기에 의존
+            # 리눅스 환경 (Railway 배포)
+            chrome_options.binary_location = "/usr/bin/chromium"
+            service = Service("/usr/bin/chromedriver")
 
         driver = webdriver.Chrome(service=service, options=chrome_options)
         url = "https://cms.dankook.ac.kr/web/kor/1947_commons"
@@ -39,13 +31,13 @@ def get_dankook_menu():
         text = driver.find_element(By.TAG_NAME, "body").text
         driver.quit()
 
-        return f"🍽️ [1947 학식 메뉴 요약]\n\n{text}"
+        return f"🍽️ [1947 학식 메뉴 요약]\n\n{text[:2000]}"
 
     except Exception as e:
-        error_msg = f"크롤러 내부 구동 실패: {e}"
+        error_msg = f"Selenium 크롤러 구동 실패: {e}"
         print(f"❌ {error_msg}")
         raise Exception(error_msg)
 
 if __name__ == "__main__":
-    print("🚀 스마트 크롤러 단독 테스트를 시작합니다... (약 3초 소요)\n")
+    print("🚀 스마트 크롤러 단독 테스트를 시작합니다...\n")
     print(get_dankook_menu())
