@@ -3,3 +3,4 @@
 
 [phases.setup]
   nixPkgs = ["...", "chromium", "chromedriver"]
+  aptPkgs = ["...", "libnss3", "libgconf-2-4", "libfontconfig1", "libdrm2", "libgbm1", "libx11-xcb1", "libxcb-dri3-0", "libasound2", "libxrender1", "libxshmfence1"]
