@@ -1,0 +1,5 @@
+[providers]
+  nixpkgs = ["python311", "chromium", "chromedriver"]
+
+[phases.setup]
+  nixPkgs = ["...", "chromium", "chromedriver"]
