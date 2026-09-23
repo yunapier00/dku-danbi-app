@@ -6,7 +6,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 def get_dankook_menu():
-
     try:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
@@ -15,27 +14,29 @@ def get_dankook_menu():
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
 
         if os.name == 'nt':
-            # 1. 윈도우 환경
+            # 1. 윈도우 환경 (로컬 테스트)
             from webdriver_manager.chrome import ChromeDriverManager
             service = Service(ChromeDriverManager().install())
         else:
-            from webdriver_manager.chrome import ChromeDriverManager
-            from webdriver_manager.core.os_manager import ChromeType
+            # 2. 리눅스 환경 (Railway 배포)
+            # webdriver_manager를 쓰지 않고, nixpacks가 설치한 시스템 경로를 직접 참조합니다.
             chrome_options.binary_location = "/usr/bin/chromium"
-            
-            service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+            service = Service("/usr/bin/chromedriver")
 
         driver = webdriver.Chrome(service=service, options=chrome_options)
         url = "https://cms.dankook.ac.kr/web/kor/1947_commons"
         driver.get(url)
         time.sleep(3)
+        
         text = driver.find_element(By.TAG_NAME, "body").text
         driver.quit()
 
         return f"🍽️ [1947 학식 메뉴 요약]\n\n{text}"
 
     except Exception as e:
-        return f"❌ 크롤링 중 오류 발생: {e}"
+        error_msg = f"크롤러 내부 구동 실패: {e}"
+        print(f"❌ {error_msg}")
+        raise Exception(error_msg)
 
 if __name__ == "__main__":
     print("🚀 스마트 크롤러 단독 테스트를 시작합니다... (약 3초 소요)\n")
