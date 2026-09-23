@@ -1,6 +1,6 @@
 [providers]
-  nixpkgs = ["python311"]
+nixpkgs = ["python311"]
 
 [phases.setup]
-  nixPkgs = ["...", "python311"]
-  aptPkgs = ["...", "chromium", "chromium-driver", "libnss3", "libgconf-2-4", "libfontconfig1", "libxrender1", "libgbm1"]
+nixPkgs = ["...", "python311"]
+aptPkgs = ["...", "chromium", "chromium-driver", "libnss3", "libgconf-2-4", "libfontconfig1", "libxrender1", "libgbm1"]
