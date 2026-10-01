@@ -1,0 +1,109 @@
+.login-page {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--color-brand-600) 0%, var(--color-brand-700) 55%, #071d3f 100%);
+}
+
+.login-page__decoration {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(420px circle at 15% 20%, rgba(255, 255, 255, 0.14), transparent 60%),
+    radial-gradient(520px circle at 85% 85%, rgba(21, 184, 166, 0.25), transparent 60%);
+  pointer-events: none;
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 40px 32px 32px;
+  text-align: center;
+}
+
+.login-card__badge {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 20px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-on-brand);
+  background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-700));
+  box-shadow: var(--shadow-md);
+}
+
+.login-card__title {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.login-card__subtitle {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.login-card__error {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14.5px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.google-button:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-text-faint);
+  transform: translateY(-1px);
+}
+
+.google-button:active {
+  transform: translateY(0);
+}
+
+.google-button:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+.login-card__footnote {
+  margin: 24px 0 0;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}

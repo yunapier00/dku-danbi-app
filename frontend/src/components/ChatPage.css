@@ -1,0 +1,18 @@
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+@media (min-width: 780px) {
+  .chat-page {
+    height: calc(100dvh - 48px);
+    margin-block: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+}
