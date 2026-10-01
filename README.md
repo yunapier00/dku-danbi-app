@@ -118,7 +118,7 @@ Gemini 요약
 
 사용자가 직접 질문하지 않아도 채팅방에서 당일 주요 공지사항을 확인할 수 있도록 구현했습니다.
 
-> 현재 개발/테스트 환경에서는 주기적인 테스트 실행을 위해 1분 간격 스케줄도 등록되어 있습니다. 실제 운영 환경에서는 매일 오전 9시 스케줄만 사용하는 것을 권장합니다.
+> 브리핑 대상 게시판과 시각은 `app/core/config.py`의 `briefing_hour`/`briefing_minute` 상수로 관리됩니다.
 
 ---
 
@@ -204,28 +204,36 @@ Gemini
 ```text
 dku-danbi-app/
 │
-├── app/
-│   └── data/
-│       └── chroma_db_dd2/
-│
 ├── backend/
-│   ├── api_server.py
-│   ├── crawler_1947.py
-│   ├── crawler_notice.py
-│   ├── database.py
-│   └── requirements.txt
+│   ├── api_server.py          # 조립 루트: 서비스 조립 + FastAPI 앱 + 스케줄러
+│   ├── chroma_db_dd3/         # Chroma 벡터 DB
+│   ├── requirements.txt
+│   ├── .env.example
+│   ├── app/
+│   │   ├── core/              # 설정(config), 로깅, 시간대(KST), 공용 상수
+│   │   ├── db/                 # 엔진/세션, ORM 모델, Repository
+│   │   ├── rag/                 # 의도 분류, 검색(BM25+벡터), 프롬프트, LLM
+│   │   ├── crawlers/            # 학식/공지 크롤러, 캐시, 게시판 설정
+│   │   ├── services/            # ChatService, BriefingService, AuthService, KakaoService
+│   │   ├── api/
+│   │   │   ├── deps.py         # 인증 의존성 (get_current_user)
+│   │   │   └── routes/         # /api/auth, /api/web/*, /api/kakao
+│   │   └── schemas/             # Pydantic 요청/응답 모델
+│   └── tests/                   # pytest (특성화 테스트 + 유닛 테스트)
 │
 ├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── assets/
-│   │   ├── App.jsx
-│   │   ├── App.css
-│   │   ├── index.css
-│   │   └── main.jsx
+│   ├── .env.example
 │   ├── index.html
 │   ├── package.json
-│   └── vite.config.js
+│   ├── vite.config.js
+│   └── src/
+│       ├── App.jsx              # LoginPage / ChatPage 전환만 담당
+│       ├── main.jsx
+│       ├── index.css            # 디자인 토큰 + 전역 리셋
+│       ├── api/client.js        # 백엔드 호출, 베이스 URL(VITE_API_URL)
+│       ├── hooks/                # useAuth, useChat
+│       ├── constants/            # 메시지 문구
+│       └── components/           # LoginPage, ChatPage, ChatHeader, MessageList, ChatInput ...
 │
 └── README.md
 ```
@@ -261,7 +269,8 @@ dku-danbi-app/
 | Vite           | Frontend 개발 환경 및 빌드         |
 | React Markdown | AI 답변 Markdown 렌더링          |
 | Remark GFM     | GitHub Flavored Markdown 지원 |
-| ChatScope      | 채팅 UI                       |
+
+채팅 UI는 외부 UI 키트 없이 직접 구현했습니다(커스텀 컴포넌트 + CSS).
 
 ---
 
@@ -318,34 +327,19 @@ EnsembleRetriever(
 
 ## 성능 측정
 
-질문 처리 과정에서 각 단계별 소요 시간을 측정합니다.
+질문 처리 과정(`ChatService.respond`)은 각 단계별 소요 시간을 측정해 `chat_history` 테이블에 함께 저장합니다.
 
 ```text
-1. 의도 파악
+1. 의도 파악 (step1_time)
         ↓
-2. DB 검색 / 크롤링
+2. DB 검색 / 크롤링 (step2_time)
         ↓
-3. Gemini 답변 생성
+3. Gemini 답변 생성 (step3_time)
         ↓
-전체 처리 시간
+전체 처리 시간 (total_time)
 ```
 
-예시 로그:
-
-```text
-==================================================
-사용자 질문: 학생식당 오늘 메뉴 뭐야?
-
-[성능 측정 리포트]
-총 소요 시간: 2.31초
-
- ├─ 1. 의도 파악 (LLM) : 0.01초
- ├─ 2. DB 검색/크롤링  : 0.72초
- └─ 3. 답변 생성 (LLM) : 1.58초
-==================================================
-```
-
-이를 통해 AI 응답 지연이 어느 단계에서 발생하는지 확인할 수 있도록 구성했습니다.
+대화 기록을 조회하면 질문·답변과 함께 각 단계 소요 시간(초, 소수점 2자리)을 확인할 수 있어, AI 응답 지연이 어느 단계에서 발생하는지 추적할 수 있습니다.
 
 ---
 
@@ -411,10 +405,12 @@ Google OAuth 로그인 페이지로 이동합니다.
 ## Google OAuth Callback
 
 ```http
-GET /api/auth/callback
+GET /api/auth/callback?code=...&state=...
 ```
 
-Google 인증 완료 후 JWT를 발급합니다.
+Google 인증 완료 후 JWT를 발급합니다. `state`는 `/api/auth/login`이 발급한 서명된 토큰(5분 TTL)이어야 하며, 로그인 CSRF를 막기 위한 것입니다.
+
+> 단국대학교 이메일(`@dankook.ac.kr`) 도메인 제한 로직은 `app/services/auth_service.py`에 구현되어 있지만 기본적으로 꺼져 있습니다. 켜려면 해당 파일의 주석 두 줄을 해제하세요.
 
 ---
 
@@ -423,6 +419,8 @@ Google 인증 완료 후 JWT를 발급합니다.
 ```http
 POST /api/kakao
 ```
+
+`KAKAO_WEBHOOK_SECRET`을 설정하면 요청 헤더 `X-Danbi-Kakao-Secret`이 일치해야만 처리합니다(미설정 시 검증 생략). 카카오 i 오픈빌더의 스킬 서버 설정에서 같은 이름/값으로 헤더를 등록해야 합니다.
 
 카카오톡 챗봇의 사용자 질문을 받아 처리합니다.
 
