@@ -9,6 +9,7 @@ ENV_NAMES = [
     "KAKAO_DAILY_LIMIT",
     "CRAWLER_VERIFY_SSL", "MENU_CACHE_TTL_SECONDS", "NOTICE_CACHE_TTL_SECONDS",
     "KAKAO_WEBHOOK_SECRET",
+    "CHROME_BINARY_PATH", "CHROMEDRIVER_PATH",
 ]
 
 
@@ -32,6 +33,7 @@ def test_defaults_match_previous_hardcoded_values(clean_env):
     assert s.crawler_verify_ssl is True
     assert (s.menu_cache_ttl_seconds, s.notice_cache_ttl_seconds) == (1800, 300)
     assert s.kakao_webhook_secret is None
+    assert (s.chrome_binary_path, s.chromedriver_path) == (None, None)
     assert (s.llm_model, s.embedding_model) == ("models/gemini-flash-latest", "models/gemini-embedding-001")
     assert s.chroma_collection == "campus_rules"
     assert (s.retriever_k, s.bm25_weight, s.vector_weight) == (3, 0.7, 0.3)
@@ -82,3 +84,12 @@ def test_kakao_webhook_secret_defaults_to_none_and_reads_env(clean_env):
     assert get_settings().kakao_webhook_secret is None
     clean_env.setenv("KAKAO_WEBHOOK_SECRET", "s3cr3t")
     assert get_settings().kakao_webhook_secret == "s3cr3t"
+
+
+def test_chrome_paths_default_to_none_and_read_env(clean_env):
+    assert (get_settings().chrome_binary_path, get_settings().chromedriver_path) == (None, None)
+
+    clean_env.setenv("CHROME_BINARY_PATH", "/usr/bin/chromium")
+    clean_env.setenv("CHROMEDRIVER_PATH", "/usr/bin/chromedriver")
+    s = get_settings()
+    assert (s.chrome_binary_path, s.chromedriver_path) == ("/usr/bin/chromium", "/usr/bin/chromedriver")

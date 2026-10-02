@@ -54,6 +54,14 @@ class Settings:
     # 카카오 i 오픈빌더 '스킬' 설정의 스킬 서버 HTTP 헤더에 같은 이름/값을 등록해야 한다.
     kakao_webhook_secret: Optional[str]
 
+    # --- 학식 크롤러(Selenium) ---
+    # 둘 다 설정하면 webdriver-manager의 런타임 다운로드를 건너뛰고 이 경로를 바로 쓴다.
+    # backend/Dockerfile 이 apt로 설치하는 chromium/chromedriver 경로와 맞춰져 있다.
+    # 미설정 시(기존 배포 호환) webdriver-manager 가 매 프로세스 첫 호출 때 드라이버를 내려받는다 —
+    # 브라우저 자체가 없는 환경(Railway 기본 buildpack 등)에서는 이 경로가 실패한다.
+    chrome_binary_path: Optional[str]
+    chromedriver_path: Optional[str]
+
     # --- 모델 / 검색 (환경변수 아님, 코드 상수) ---
     llm_model: str = "models/gemini-flash-latest"
     embedding_model: str = "models/gemini-embedding-001"
@@ -96,4 +104,6 @@ def get_settings() -> Settings:
         menu_cache_ttl_seconds=int(os.getenv("MENU_CACHE_TTL_SECONDS", 1800)),
         notice_cache_ttl_seconds=int(os.getenv("NOTICE_CACHE_TTL_SECONDS", 300)),
         kakao_webhook_secret=os.getenv("KAKAO_WEBHOOK_SECRET"),
+        chrome_binary_path=os.getenv("CHROME_BINARY_PATH"),
+        chromedriver_path=os.getenv("CHROMEDRIVER_PATH"),
     )

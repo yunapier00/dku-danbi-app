@@ -352,6 +352,22 @@ Google Cloud Console에서 OAuth Client를 생성한 후 Redirect URI를 Backend
 
 ---
 
+# 배포 (Railway)
+
+학식 크롤러(`app/crawlers/menu.py`)는 Selenium으로 실제 Chromium 브라우저를 띄웁니다. Railway의 기본
+빌드(Docker 없이 Python만 설치)에는 브라우저가 없고, `webdriver-manager`가 매번 GitHub에서 드라이버를
+내려받는 방식이라 네트워크 상태에 따라 실패하기 쉽습니다(`chromedriver ... Status code was: 127` 같은 에러).
+
+**`backend/Dockerfile`을 사용하는 것을 권장합니다.** 빌드 시점에 apt로 Chromium과 버전이 맞는
+chromedriver를 함께 설치해두고, `CHROME_BINARY_PATH` / `CHROMEDRIVER_PATH` 환경변수로 바로 그 경로를
+가리킵니다(Dockerfile의 `ENV`에 이미 설정되어 있어 별도 입력이 필요 없습니다). Railway에서 해당 서비스의
+빌더를 **Dockerfile**로 지정하면 됩니다.
+
+Docker를 쓰지 않는 환경이라면 `CHROME_BINARY_PATH` / `CHROMEDRIVER_PATH`를 직접 설치한 경로로
+설정하세요. 둘 다 비워두면 기존처럼 `webdriver-manager`가 런타임에 드라이버를 내려받습니다.
+
+---
+
 # API
 
 ## Web Chat

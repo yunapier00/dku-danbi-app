@@ -26,6 +26,8 @@ def settings():
         menu_cache_ttl_seconds=0,
         notice_cache_ttl_seconds=0,
         kakao_webhook_secret=None,
+        chrome_binary_path=None,
+        chromedriver_path=None,
     )
 
 

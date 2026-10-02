@@ -445,3 +445,46 @@ def test_chromedriver_install_runs_once_per_process(monkeypatch):
 
     assert installs == [1]
     assert built == ["/fake/chromedriver", "/fake/chromedriver"]
+
+
+def test_configured_chromedriver_path_skips_webdriver_manager_download(monkeypatch):
+    """Docker 이미지처럼 CHROMEDRIVER_PATH/CHROME_BINARY_PATH 가 설정돼 있으면
+    webdriver-manager 의 런타임 다운로드를 아예 타지 않아야 한다(네트워크 의존 제거)."""
+    monkeypatch.setenv("CHROMEDRIVER_PATH", "/usr/bin/chromedriver")
+    monkeypatch.setenv("CHROME_BINARY_PATH", "/usr/bin/chromium")
+
+    def boom(*args, **kwargs):
+        raise AssertionError("webdriver-manager 가 호출되면 안 된다")
+
+    monkeypatch.setattr(menu_module, "ChromeDriverManager", boom)
+    monkeypatch.setattr(menu_module, "_driver_path", None)
+
+    captured = {}
+
+    def fake_chrome(service, options):
+        captured["driver_path"] = service.path
+        captured["binary_location"] = options.binary_location
+        return "driver"
+
+    monkeypatch.setattr(menu_module.webdriver, "Chrome", fake_chrome)
+
+    assert menu_module.create_chrome_driver() == "driver"
+    assert captured == {"driver_path": "/usr/bin/chromedriver", "binary_location": "/usr/bin/chromium"}
+
+
+def test_chrome_binary_path_falls_back_to_hardcoded_linux_default(monkeypatch):
+    """CHROME_BINARY_PATH 미설정 시 기존 동작(비-Windows는 /usr/bin/chromium 가정)을 유지한다."""
+    monkeypatch.delenv("CHROME_BINARY_PATH", raising=False)
+    monkeypatch.setenv("CHROMEDRIVER_PATH", "/usr/bin/chromedriver")
+    monkeypatch.setattr(menu_module.os, "name", "posix")
+
+    captured = {}
+    monkeypatch.setattr(
+        menu_module.webdriver,
+        "Chrome",
+        lambda service, options: captured.setdefault("binary_location", options.binary_location),
+    )
+
+    menu_module.create_chrome_driver()
+
+    assert captured["binary_location"] == "/usr/bin/chromium"
